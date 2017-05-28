@@ -21,7 +21,7 @@ public class glTest
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][] {
 		
-        {1,10000},{2,1500},{3,2000},
+        {1,10000},//{2,1500},
         /*
 		{4,2500},{5,3000},{6,3500},
 		{7,7000},{8,1500},{9,4500},

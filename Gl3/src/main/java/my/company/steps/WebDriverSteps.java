@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -35,7 +36,7 @@ public class WebDriverSteps
 
     @Step
     public void script(int fprice, int fno) throws InterruptedException 
-    {
+     {
     	PrintWriter file = null;
         try
         {
@@ -56,20 +57,25 @@ public class WebDriverSteps
   		 
   		 int sumprice =  0;
 
+  		while(sumprice < fprice)
+		{
   		 chosemeals: for (WebElement foods : list)  
   		 {
+  			
   			 WebElement name  = foods.findElement(By.cssSelector("div.left-col h2"));
   			 WebElement price = foods.findElement(By.cssSelector("div.field-name-commerce-price"));
   			 WebElement offer = foods.findElement(By.cssSelector("input.form-submit"));
   			 
+  			
   			 if(Math.random() > 0.8)
   			 {
+  				((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",foods);
   				 offer.click();
   				
   				 	System.out.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));
   				 	file.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));
   				 	
-  				 Thread.sleep(2000);
+  				 Thread.sleep(3000);
   				 
   				 WebElement finalprice = driver.findElement(By.cssSelector("div.final-price"));
   				 	System.out.println(String.format("Итоговая цена: %s\n", finalprice.getText()));
@@ -78,11 +84,10 @@ public class WebDriverSteps
   				 
   				 if( sumprice > fprice) break chosemeals;
   				 
-  				 
+  			  }
   			 }
+		}
   			
-  		 }		 
-  		 
   		 if( sumprice > fprice)
   		 {
   			 System.out.println("Итоговая цена больше: " + fprice + " ...Делаем заказ\n");
@@ -107,14 +112,10 @@ public class WebDriverSteps
 	  			file.println(" ");
 	  			file.close();
   			 
-  			
   		 }
-  		 else
-  		 { 
-  			System.out.println("Сумма не набралась..."); 
-  		 }
-   	 }
-        
+    
+     }
+  		 	
         @Attachment
         @Step("Make screen shot of results page")
         public byte[] Screen() throws InterruptedException 
@@ -129,5 +130,5 @@ public class WebDriverSteps
         {
             driver.quit();
         }
-         
 }
+

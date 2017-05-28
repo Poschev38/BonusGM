@@ -3,9 +3,14 @@ package my.company.tests;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import my.company.steps.WebDriverSteps;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +26,8 @@ public class glTest
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][] {
 		
-        {1,4000},{2,1500},{3,2000},
-        //{4,2500},{5,3000},{6,3500},
+        {1,500},{2,1000},{3,1500},
+        {4,2000},{5,2500},{6,3000},
 		});
     }
     
@@ -33,7 +38,7 @@ public class glTest
         fprice= price;
         fno= no;     	
     }
-    
+        
     private WebDriverSteps steps;
     @Before
     public void setUp() throws Exception
@@ -53,6 +58,7 @@ public class glTest
         steps.Screen();
         steps.quit();
     }
+    
     
     
 }
