@@ -2,11 +2,15 @@ package my.company.steps;
 
 import com.google.common.base.Predicate;
 
+import static org.hamcrest.CoreMatchers.containsString;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -21,7 +25,6 @@ import ru.yandex.qatools.allure.annotations.Step;
 
 public class WebDriverSteps 
 {
-
     private WebDriver driver;
     	public WebDriverSteps(WebDriver driver) 
     {
@@ -35,86 +38,83 @@ public class WebDriverSteps
     }
 
     @Step
-    public void script(int fprice, int fno) throws InterruptedException 
-     {
-    	PrintWriter file = null;
-        try
-        {
-            file = new PrintWriter(new FileOutputStream("combinations.txt", true));
-        }
-        catch(FileNotFoundException e)
-        {
-            System.out.println("Ошибка открытия файла combinations.txt");
-            System.exit(0);
-        }
-        
-        file.println(String.format("Номер теста: %d\n", fno));
- 		file.println(String.format("Cтоимость заказа: %d\n", fprice));
-        
+    public result script(int fprice) throws InterruptedException 
+    {
+    	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     	
-    	WebElement catalog = driver.findElement(By.id("content"));
-  		 List<WebElement> list = catalog.findElements(By.cssSelector("div.node-catalog"));
-  		 
-  		 int sumprice =  0;
-
-  		while(sumprice < fprice)
-		{
-  		 chosemeals: for (WebElement foods : list)  
-  		 {
-  			
-  			 WebElement name  = foods.findElement(By.cssSelector("div.left-col h2"));
-  			 WebElement price = foods.findElement(By.cssSelector("div.field-name-commerce-price"));
-  			 WebElement offer = foods.findElement(By.cssSelector("input.form-submit"));
-  			 
-  			
-  			 if(Math.random() > 0.8)
-  			 {
-  				((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",foods);
-  				 offer.click();
-  				
-  				 	System.out.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));
-  				 	file.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));
-  				 	
-  				 Thread.sleep(3000);
-  				 
-  				 WebElement finalprice = driver.findElement(By.cssSelector("div.final-price"));
-  				 	System.out.println(String.format("Итоговая цена: %s\n", finalprice.getText()));
-  				 	file.println(String.format("Итоговая цена: %s\n", finalprice.getText()));
-  				 sumprice =  Integer.parseInt((finalprice.getText()).replaceAll(" ", ""));
-  				 
-  				 if( sumprice > fprice) break chosemeals;
-  				 
-  			  }
-  			 }
-		}
-  			
+ 		result res = new result();
+ 		int sumprice =  0;
+ 		
+ 		WebElement catalog = driver.findElement(By.id("content"));
+  		List<WebElement> list = catalog.findElements(By.cssSelector("div.node-catalog"));
+  		
+	  		while(sumprice < fprice)
+			{
+	  		  chosemeals: for (WebElement foods : list)  
+	  		  {
+	  			 WebElement name  = foods.findElement(By.cssSelector("div.left-col h2"));
+	  			 WebElement price = foods.findElement(By.cssSelector("div.field-name-commerce-price"));
+	  			 WebElement offer = foods.findElement(By.cssSelector("input.form-submit"));
+		  		   if(Math.random() > 0.8)
+		  			 {
+		  				((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",foods);
+		  				Thread.sleep(1000);
+		  				
+		  				(new WebDriverWait(driver, 10)).withMessage("не найдена кнопка заказа")	
+		  				.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input.form-submit")));
+		  				 offer.click();
+		  				 
+		  				 System.out.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));	
+		  				 Thread.sleep(3000);
+		  				 
+		  				 WebElement finalprice = driver.findElement(By.cssSelector("div.final-price"));
+		  				 
+		  				 System.out.println(String.format("Итоговая цена: %s\n", finalprice.getText()));
+		  				 
+		  				 sumprice =  Integer.parseInt((finalprice.getText()).replaceAll(" ", ""));
+		  		
+		  				 	if( sumprice > fprice) break chosemeals;
+  			         }
+  			   }
+		   }
+	  		
   		 if( sumprice > fprice)
-  		 {
+  		   {
   			 System.out.println("Итоговая цена больше: " + fprice + " ...Делаем заказ\n");
-  			 file.println("Итоговая цена больше: " + fprice + " ...Делаем заказ\n");
   			 
   			 WebElement checkout1 = driver.findElement(By.cssSelector("a.checkout-button"));
   			 checkout1.click();
   			 
   			 WebDriverWait waitfor = new WebDriverWait(driver, 5, 1000);
-  			 waitfor.withMessage("Элемент не был найден!");
   			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.id("edit-customer-profile-billing-field-phone-und-0-value")));
-
+  			 waitfor.withMessage("Элемент не был найден!");
+  			
+  			 //ввод номера телефона
   			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).clear();
-  			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).sendKeys("88005553535");
+  			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).sendKeys("Autotest/88005553535");
   			 driver.findElement(By.id("edit-continue")).click();
   			 
+  			 //форма с бонусом
   			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.ctools-modal-content")));
-  			 WebElement bonus = driver.findElement(By.cssSelector("div.ctools-modal-content"));
+  			 waitfor.until(ExpectedConditions.
+  				  textToBePresentInElementLocated(By.id("modal-title"), 
+  						  "Наше спец. предложение!"));
   			 
-  			 System.out.println(String.format("Бонус к заказу: %s\n", bonus.getText()));
-	  			file.println(String.format("Бонус к заказу: %s\n", bonus.getText()));
-	  			file.println(" ");
-	  			file.close();
+  			 WebElement bonus_meal = driver.findElement(By.cssSelector("div.title"));
+  			 WebElement bonus_price = driver.findElement(By.xpath(".//*[@id='node-251']/div[1]/div[3]/div/div/div/div"));
+  			 WebElement discount_percentage = driver.findElement(By.cssSelector(".discount "));
   			 
-  		 }
-    
-     }
+  			System.out.println(String.format("Бонусное блюдо: %s\nЦена бонусного блюда: %s\nПроцент скидки: %s",
+  					bonus_meal.getText(), bonus_price.getText() ,discount_percentage.getText()));
+  			
+  			 //заносим параметры в класс, в котором содержатся результаты 
+  			 res.sumprice = sumprice;
+  			 res.discount_percentage = Integer.parseInt((discount_percentage.getText()).replaceAll("\\D*\\s*", ""));
+  			 res.bonus_price = Integer.parseInt((bonus_price.getText()).replaceAll(" ", ""));
+  			 res.bonus_meal = bonus_meal.getText().toString();  			 
+  		  }
+  		 	 return res;
+      }
   		 	
         @Attachment
         @Step("Make screen shot of results page")
@@ -124,8 +124,6 @@ public class WebDriverSteps
             return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
         }
         
-        
-
         public void quit() 
         {
             driver.quit();

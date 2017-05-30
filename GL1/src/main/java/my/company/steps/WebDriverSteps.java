@@ -83,16 +83,18 @@ public class WebDriverSteps
   			 
   			 System.out.println("Оформление заказа. Вводим данные...\n");
   			 
-  			 /*
+  			
   			 WebDriverWait waitfor = new WebDriverWait(driver, 5, 1000);
+  			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.id
+  					 ("edit-customer-profile-billing-field-phone-und-0-value")));
   			 waitfor.withMessage("Элемент не был найден!");
-  			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.id("edit-customer-profile-billing-field-phone-und-0-value")));
-			
+  			
   			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).sendKeys("Autotest/88005553535");
   			 driver.findElement(By.id("edit-customer-profile-billing-field-polit-und")).click(); 
   			 driver.findElement(By.id("edit-continue")).click();
   			 
-  			 WebElement complete = driver.findElement(By.cssSelector(".checkout-completion-message>p>a"));
+  			 WebElement complete = driver.findElement(By.xpath(".//*[@id='edit-checkout-completion-message']/div/p[2]/a"));
+  			 complete.click();
   			 System.out.println(String.format("Заказ оформлен!: %s\n", complete.getText()));
   			 /*
   			 WebElement numberOrder = driver.findElement(By.cssSelector(".checkout-completion-message>p>a"));
