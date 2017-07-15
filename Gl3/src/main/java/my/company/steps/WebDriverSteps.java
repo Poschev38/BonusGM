@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -35,6 +36,7 @@ public class WebDriverSteps
     public void openMainPage() 
     {
     	driver.get("http://cp41135.tmweb.ru/catalog");
+    	driver.manage().window().maximize();
     }
 
     @Step
@@ -58,22 +60,23 @@ public class WebDriverSteps
 		  		   if(Math.random() > 0.8)
 		  			 {
 		  				((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",foods);
-		  				Thread.sleep(1000);
+		  				 Thread.sleep(1500);
 		  				
 		  				(new WebDriverWait(driver, 10)).withMessage("не найдена кнопка заказа")	
 		  				.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input.form-submit")));
+		  				
 		  				 offer.click();
 		  				 
 		  				 System.out.println(String.format("Блюдо: %s\n по цене: %s", name.getText(), price.getText()));	
-		  				 Thread.sleep(3000);
+		  				 Thread.sleep(2000);
 		  				 
 		  				 WebElement finalprice = driver.findElement(By.cssSelector("div.final-price"));
 		  				 
 		  				 System.out.println(String.format("Итоговая цена: %s\n", finalprice.getText()));
 		  				 
-		  				 sumprice =  Integer.parseInt((finalprice.getText()).replaceAll(" ", ""));
+		  				 sumprice =  Integer.parseInt((finalprice.getText()).replaceAll("\\D*\\s*", ""));
 		  		
-		  				 	if( sumprice > fprice) break chosemeals;
+		  				 	if( sumprice >= fprice) break chosemeals;
   			         }
   			   }
 		   }
@@ -83,26 +86,33 @@ public class WebDriverSteps
   			 System.out.println("Итоговая цена больше: " + fprice + " ...Делаем заказ\n");
   			 
   			 WebElement checkout1 = driver.findElement(By.cssSelector("a.checkout-button"));
+  			 
+  			((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",checkout1);
+				 Thread.sleep(100);
   			 checkout1.click();
   			 
-  			 WebDriverWait waitfor = new WebDriverWait(driver, 5, 1000);
-  			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.id("edit-customer-profile-billing-field-phone-und-0-value")));
-  			 waitfor.withMessage("Элемент не был найден!");
-  			
   			 //ввод номера телефона
   			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).clear();
   			 driver.findElement(By.id("edit-customer-profile-billing-field-phone-und-0-value")).sendKeys("Autotest/88005553535");
   			 driver.findElement(By.id("edit-continue")).click();
   			 
+  			 
   			 //форма с бонусом
-  			 waitfor.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.ctools-modal-content")));
-  			 waitfor.until(ExpectedConditions.
-  				  textToBePresentInElementLocated(By.id("modal-title"), 
-  						  "Наше спец. предложение!"));
+  			try {
+
+  				WebElement bonus_form = driver.findElement(By.cssSelector("div.ctools-modal-content"));
+
+  				} catch (NoSuchElementException e) {
+
+  				System.out.println("Заказ оформлен. Бонуса к заказу нет...");
+  				}
+  			(new WebDriverWait(driver, 5)).withMessage("Форма с бонусом не найдена...")	
+				.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.ctools-modal-content")));
+  			   			 Thread.sleep(2000);
   			 
   			 WebElement bonus_meal = driver.findElement(By.cssSelector("div.title"));
-  			 WebElement bonus_price = driver.findElement(By.xpath(".//*[@id='node-251']/div[1]/div[3]/div/div/div/div"));
-  			 WebElement discount_percentage = driver.findElement(By.cssSelector(".discount "));
+  			 WebElement bonus_price = driver.findElement(By.cssSelector("div.commerce_price"));
+  			 WebElement discount_percentage = driver.findElement(By.cssSelector(".discount"));
   			 
   			System.out.println(String.format("Бонусное блюдо: %s\nЦена бонусного блюда: %s\nПроцент скидки: %s",
   					bonus_meal.getText(), bonus_price.getText() ,discount_percentage.getText()));

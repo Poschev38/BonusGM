@@ -3,6 +3,7 @@ package my.company.tests;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import my.company.steps.WebDriverSteps;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,15 +20,12 @@ public class glTest
 
     @Parameterized.Parameters
     public static List<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-		
-        {1,1000},//{2,1500},
-        /*
-		{4,2500},{5,3000},{6,3500},
-		{7,7000},{8,1500},{9,4500},
-		{10,5000},{11,5500},{12,6000},
-		*/
-		});
+    	List<Object[]> params =
+                new ArrayList<Object[]>();  
+        for (int i = 1; i <= 2; i++) {  
+             params.add(new Object[] {i,500+(i-1)*500});  
+        }  
+        return params;
     }
     
     int fprice;
